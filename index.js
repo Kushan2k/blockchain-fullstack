@@ -1,9 +1,13 @@
-import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js"
+import { ethers } from "./ethers-6.7.0.js"
+import { fundMeABI, fundMeAddress } from "./constant.js"
 
 document.addEventListener("DOMContentLoaded", async () => {
   let provider, singer
 
   let loginbtn = document.querySelector(".login-btn")
+  const fundbtn = document.querySelector("#fund")
+  const input = document.querySelector("#value")
+  const cBalance = document.querySelector("#c-balance")
 
   if (typeof window.ethereum == "undefined") {
     showErrordialog(
@@ -11,12 +15,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       "ER"
     )
   }
-
-  console.log(window.ethereum)
-
-  const account = await window.ethereum.request({ method: "eth_accounts" })
-
-  console.log(ethers)
 
   loginbtn.addEventListener("click", async (e) => {
     try {
@@ -26,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       provider = new ethers.BrowserProvider(window.ethereum)
       await provider.send("eth_requestAccounts", [])
       singer = await provider.getSigner()
+      setContractbalance(fundMeAddress, cBalance, provider)
     } catch (error) {
       showErrordialog(error.message, "ER")
     }
@@ -38,6 +37,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       setAccoutBalance(ethers.formatEther(balance))
     } catch (er) {
       showErrordialog("you need to connect first to a provider", "ER")
+    }
+  })
+
+  fundbtn.addEventListener("click", async () => {
+    const contract = new ethers.Contract(fundMeAddress, fundMeABI, singer)
+
+    try {
+      const amount = parseFloat(input.value)
+
+      const ether = ethers.parseEther(amount.toString())
+
+      const tx = await contract.donate({ value: ether })
+      await waitTofinishTransaction(tx, provider)
+      showErrordialog("Funded!", "SU")
+      input.value = ""
+      setContractbalance(fundMeAddress, cBalance, provider)
+    } catch (er) {
+      showErrordialog(er.message, "ER")
     }
   })
 })
@@ -64,4 +81,21 @@ function showErrordialog(msg, t) {
 function setAccoutBalance(value) {
   let ele = document.querySelector("#balance")
   ele.innerHTML = value
+}
+
+function waitTofinishTransaction(tx, provider) {
+  console.log(`Hash : ${tx.hash}`)
+
+  return new Promise((resolve, reject) => {
+    provider.once(tx.hash, (txRecipt) => {
+      showErrordialog("Funded! <br>Recipt " + txRecipt, "SU")
+
+      resolve()
+    })
+  })
+}
+
+async function setContractbalance(address, element, provider) {
+  const newBalance = await provider.getBalance(address)
+  element.innerHTML = parseFloat(ethers.formatEther(newBalance)).toFixed(5)
 }
