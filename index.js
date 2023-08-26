@@ -4,11 +4,13 @@ import { fundMeABI, fundMeAddress } from "./constant.js"
 document.addEventListener("DOMContentLoaded", async () => {
   let provider, singer
 
+  //DOM elements
   let loginbtn = document.querySelector(".login-btn")
   const fundbtn = document.querySelector("#fund")
   const input = document.querySelector("#value")
   const cBalance = document.querySelector("#c-balance")
 
+  //checking if the wallet is installed
   if (typeof window.ethereum == "undefined") {
     showErrordialog(
       "you have not installed any wallteds try installing one!",
@@ -16,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     )
   }
 
+  //connecting to a wallet
   loginbtn.addEventListener("click", async (e) => {
     try {
       window.ethereum.request({ method: "eth_requestAccounts" })
@@ -30,6 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   })
 
+  //get the user accoutn balance
   const getbalanceBTn = document.querySelector(".get-balance")
   getbalanceBTn.addEventListener("click", async () => {
     try {
@@ -40,6 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   })
 
+  //funding the contract using fundne.donete function
   fundbtn.addEventListener("click", async () => {
     const contract = new ethers.Contract(fundMeAddress, fundMeABI, singer)
 
@@ -59,6 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   })
 })
 
+//function for showing the msg to the user
 function showErrordialog(msg, t) {
   let place = document.querySelector(".msg")
   place.innerHTML = msg
@@ -78,11 +84,13 @@ function showErrordialog(msg, t) {
   }, 3000)
 }
 
+//set the account balance in the dom
 function setAccoutBalance(value) {
   let ele = document.querySelector("#balance")
   ele.innerHTML = value
 }
 
+//waiting for transaction to be mined --no efect on development chains
 function waitTofinishTransaction(tx, provider) {
   console.log(`Hash : ${tx.hash}`)
 
@@ -95,6 +103,7 @@ function waitTofinishTransaction(tx, provider) {
   })
 }
 
+//set the contract fundme balance in the DOM
 async function setContractbalance(address, element, provider) {
   const newBalance = await provider.getBalance(address)
   element.innerHTML = parseFloat(ethers.formatEther(newBalance)).toFixed(5)
