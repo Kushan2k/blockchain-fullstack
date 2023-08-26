@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fundbtn = document.querySelector("#fund")
   const input = document.querySelector("#value")
   const cBalance = document.querySelector("#c-balance")
+  const donetions = document.querySelector("#donetions")
 
   //checking if the wallet is installed
   if (typeof window.ethereum == "undefined") {
@@ -58,6 +59,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       showErrordialog("Funded!", "SU")
       input.value = ""
       setContractbalance(fundMeAddress, cBalance, provider)
+
+      const myamount = await contract.getDonetions(singer)
+      donetions.innerHTML = ethers.formatEther(myamount.toString())
     } catch (er) {
       showErrordialog(er.message, "ER")
     }
