@@ -4,14 +4,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let provider, singer
 
   let loginbtn = document.querySelector(".login-btn")
-  const account = await window.ethereum.request({ method: "eth_accounts" })
-
-  console.log(ethers)
-
-  if (account.length > 0) {
-    loginbtn.innerHTML = "logedin"
-    console.log("Connected")
-  }
 
   if (typeof window.ethereum == "undefined") {
     showErrordialog(
@@ -19,6 +11,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       "ER"
     )
   }
+
+  console.log(window.ethereum)
+
+  const account = await window.ethereum.request({ method: "eth_accounts" })
+
+  console.log(ethers)
 
   loginbtn.addEventListener("click", async (e) => {
     try {
